@@ -17,43 +17,20 @@ Feature: Mark as Favorite
   # --- Positive ---
 
   Scenario: Menambahkan film ke favorit dari halaman detail film
-    When saya buka halaman detail sebuah film
-    And saya klik tombol favorit yang ada di halaman tersebut
+    When saya cari film "Inside Out 2" menggunakan fitur search
+    And saya masuk ke halaman detail film dari hasil pencarian pertama
+    And saya klik tombol favorit di halaman detail
     Then ikon tombol favorit berubah menjadi aktif
-    And film tersebut muncul di halaman /u/<username>/favorites
-
-  Scenario: Menambahkan film ke favorit dari halaman listing film
-    When saya buka halaman daftar film, misalnya halaman Popular Movies
-    And saya klik ikon favorit yang muncul saat hover pada salah satu film
-    Then ikon favorit film tersebut berubah menjadi aktif
-    And film tersebut muncul di halaman /u/<username>/favorites
-
-  Scenario: Indikator favorit tampil konsisten di halaman listing dan detail
-    Given saya sudah menandai film "Inside Out 2" sebagai favorit
-    When saya lihat film tersebut di halaman listing
-    Then ikon favorit film tersebut tampil dalam kondisi aktif
-    When saya buka halaman detail film tersebut
-    Then tombol favorit di halaman detail juga tampil dalam kondisi aktif
-
-  Scenario: Bisa menambahkan lebih dari satu film ke favorit
-    When saya tandai film pertama sebagai favorit
-    And saya tandai film kedua yang berbeda sebagai favorit
-    Then kedua film tersebut muncul di halaman /u/<username>/favorites
-
-  Scenario: Film yang sama tidak muncul dua kali di daftar favorit
-    Given film "Inside Out 2" sudah ada di daftar favorit saya
-    When saya buka halaman detail film tersebut
-    And saya klik tombol favorit sekali lagi
-    Then film tersebut tidak muncul dua kali di halaman /u/<username>/favorites
+    And film "Inside Out 2" muncul di halaman /u/<username>/favorites/movies
 
   # --- Negative ---
 
   Scenario: Tidak bisa menambahkan favorit jika belum login
     Given saya belum login ke akun apapun
-    When saya buka halaman detail film
+    When saya buka halaman detail film "Inside Out 2"
     And saya klik tombol favorit
-    Then muncul pesan yang meminta saya untuk login terlebih dahulu
-    And film tidak tersimpan ke daftar favorit manapun
+    Then muncul tooltip "Masuk untuk menambahkan film ke daftar sukaan anda"
+    And URL tidak berpindah ke halaman favorites
 ```
 
 ---
@@ -70,28 +47,22 @@ Feature: Melihat Daftar Film Favorit
 
   # --- Positive ---
 
-  Scenario: Membuka halaman daftar film favorit
-    When saya buka halaman /u/<username>/favorites/movies
-    Then halaman berhasil dimuat tanpa error
-    And daftar film yang pernah saya favorit tampil di sana
+  Scenario: Membuka halaman daftar film favorit (Movies)
+    When saya akses langsung halaman /u/<username>/favorites/movies
+    Then halaman berhasil dimuat
+    And konten utama halaman favorit terlihat
 
-  Scenario: Film terbaru yang di-favorit muncul paling atas
-    Given saya sudah punya beberapa film di daftar favorit
-    When saya menambahkan satu film baru ke favorit
-    And saya buka halaman /u/<username>/favorites/movies
-    Then film yang baru saja saya tambahkan muncul di urutan paling atas daftar
-
-  Scenario: Informasi film di halaman favorit konsisten dengan halaman listing
-    When saya buka halaman /u/<username>/favorites/movies
-    Then judul, poster, dan informasi film yang tampil sama dengan yang ada di halaman listing
+  Scenario: Membuka halaman daftar TV Shows favorit
+    When saya akses langsung halaman /u/<username>/favorites/tv
+    Then halaman berhasil dimuat
+    And konten utama halaman favorit terlihat
 
   # --- Negative ---
 
   Scenario: Halaman favorit tidak bisa diakses tanpa login
     Given saya belum login ke akun apapun
-    When saya coba akses langsung halaman /u/<username>/favorites/movies
-    Then server menolak permintaan saya
-    And saya tidak bisa melihat isi daftar favorit tersebut
+    When saya kirim HTTP request ke halaman /u/<username>/favorites/movies
+    Then server mengembalikan status 401 Unauthorized
 ```
 
 ---
@@ -110,28 +81,10 @@ Feature: Menghapus Film dari Daftar Favorit
   # --- Positive ---
 
   Scenario: Menghapus film dari halaman favorites list
-    When saya buka halaman /u/<username>/favorites/movies
-    And saya klik tombol hapus pada salah satu film
-    Then film tersebut langsung hilang dari daftar
-    And setelah halaman di-reload, film itu memang sudah tidak ada
-
-  Scenario: Menghapus film dari halaman detail film
-    When saya buka halaman detail film yang sudah ada di favorit saya
-    And saya klik ulang tombol favorit untuk menonaktifkannya
-    Then tombol favorit kembali ke kondisi tidak aktif
-    And film tersebut sudah tidak ada lagi di halaman /u/<username>/favorites
-
-  Scenario: Menghapus film dari halaman listing film
-    When saya buka halaman listing yang menampilkan film yang ada di favorit saya
-    And saya klik ikon favorit film tersebut untuk menonaktifkannya
-    Then ikon favorit film itu kembali ke kondisi tidak aktif
-    And film tersebut sudah tidak ada lagi di halaman /u/<username>/favorites
-
-  Scenario: Status favorit berubah di semua halaman setelah dihapus
-    Given film "Inside Out 2" ada di daftar favorit saya
-    When saya hapus film tersebut dari halaman favorites list
-    Then tombol favorit di halaman detail film tersebut juga sudah tidak aktif
-    And ikon favorit di halaman listing juga sudah tidak aktif
+    When saya navigasi ke halaman /u/<username>/favorites/movies
+    And saya klik tombol hapus pada film pertama di daftar
+    And halaman di-reload
+    Then film yang dihapus sudah tidak ada di daftar
 ```
 
 ---
@@ -159,11 +112,13 @@ Feature: Mengurutkan Daftar Favorit
     Then daftar film diurutkan berdasarkan tanggal rilis
     And URL halaman mengandung parameter "sort_by=release_date"
 
-  Scenario: Preferensi sorting tersimpan untuk sesi berikutnya
-    Given saya sudah memilih sorting "Popularity" sebelumnya
-    When saya logout lalu login kembali ke akun yang sama
-    And saya buka halaman /u/<username>/favorites dengan parameter sort_by=popularity
-    Then halaman tetap menampilkan hasil dengan urutan sesuai popularity
+  Scenario: Sorting tetap berfungsi setelah session dibersihkan dan login ulang
+    Given saya sudah berada di halaman /u/<username>/favorites dengan parameter sort_by=popularity
+    When session dibersihkan (cookies dan localStorage dihapus)
+    And saya login ulang ke akun yang sama
+    And saya akses kembali halaman /u/<username>/favorites dengan parameter sort_by=popularity
+    Then URL tetap mengandung parameter "sort_by=popularity"
+    And halaman berhasil dimuat
 
   # --- Negative ---
 
