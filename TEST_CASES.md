@@ -144,21 +144,4 @@ Feature: Sorting Daftar Favorite
 
 ---
 
-## Ringkasan
 
-| ID     | Fitur                               | Tipe     | File                          |
-|--------|-------------------------------------|----------|-------------------------------|
-| TC-01a | View Favorite List (Movies)         | Positive | tmdb_view_favorite.cy.js      |
-| TC-01b | View Favorite List (TV Shows)       | Positive | tmdb_view_favorite.cy.js      |
-| TC-01c | View Favorite tanpa login           | Negative | tmdb_view_favorite.cy.js      |
-| TC-02a | Tambah Favorite                     | Positive | tmdb_favorite_positive.cy.js  |
-| TC-02b | Tambah Favorite tanpa login         | Negative | tmdb_favorite_negative.cy.js  |
-| TC-03  | Hapus dari Favorite                 | Positive | tmdb_remove_favorite.cy.js    |
-| TC-04a | Ubah Bahasa ke Indonesia            | Positive | tmdb_language_positive.cy.js  |
-| TC-04b | Kembalikan Bahasa ke Inggris        | Positive | tmdb_language_positive.cy.js  |
-| TC-04c | Favorit tetap ada setelah ganti bahasa | Positive | tmdb_language_positive.cy.js |
-| TC-04d | Bahasa param tidak valid            | Negative | tmdb_language_negative.cy.js  |
-| TC-05a | Sorting Popularity                  | Positive | tmdb_sorting_positive.cy.js   |
-| TC-05b | Sorting Release Date                | Positive | tmdb_sorting_positive.cy.js   |
-| TC-05c | Sorting setelah re-login            | Positive | tmdb_sorting_positive.cy.js   |
-| TC-05d | Sorting param tidak valid           | Negative | tmdb_sorting_negative.cy.js   |
